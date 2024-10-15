@@ -1285,35 +1285,39 @@ exports.walk = (root, cb)=>{
         cb();
     }
 
-    function handle_anat_t2starw(derivatives, parent_sidecar, dir, fileinfo, cb) {
-        // Load sidecar
-        let json_filename = fileinfo._filename.replace(/\.nii(\.gz)?$/, ".json");
-        let sidecar = {};
-        Object.assign(sidecar, parent_sidecar[json_filename]);
-        Object.assign(sidecar, get_sidecar_from_fileinfo(dir, fileinfo, json_filename));
-    
-        // Get all tags
-        let all_tags = get_tags(fileinfo);
-    
-        // Filter tags for datatype_tags (only "part-mag" and/or "part-phase")
-        let datatype_tags = all_tags.filter(tag => tag === "part-mag" || tag === "part-phase");
-    
-        // Filter tags for tags (exclude "part-mag" and "part-phase")
-        let tags = all_tags.filter(tag => tag !== "part-mag" && tag !== "part-phase");
-    
-        // Define brainlife dataset
-        let dataset = {
-            datatype: "neuro/anat/t2starw",
-            desc: fileinfo._fullname,
-            datatype_tags: datatype_tags,
-            tags: tags,
-            meta: Object.assign(sidecar, get_meta(fileinfo)),
-        };
-    
-        // Assign files
-        let files = { 't2starw.nii': dir + "/" + fileinfo._fullname };
-        bids.datasets.push({ dataset, files });
-        cb();
-    }
+function handle_anat_t2starw(derivatives, parent_sidecar, dir, fileinfo, cb) {
+    // Load sidecar
+    let json_filename = fileinfo._filename.replace(/\.nii(\.gz)?$/, ".json");
+    let sidecar = {};
+    Object.assign(sidecar, parent_sidecar[json_filename]);
+    Object.assign(sidecar, get_sidecar_from_fileinfo(dir, fileinfo, json_filename));
+
+    // Get all tags
+    let all_tags = get_tags(fileinfo);
+
+    // Filter tags for datatype_tags (only "part-mag", "part-phase", "part-imag", and "part-real")
+    let datatype_tags = all_tags.filter(tag => 
+        tag === "part-mag" || tag === "part-phase" || tag === "part-imag" || tag === "part-real"
+    );
+
+    // Filter tags for tags (exclude "part-mag", "part-phase", "part-imag", and "part-real")
+    let tags = all_tags.filter(tag => 
+        tag !== "part-mag" && tag !== "part-phase" && tag !== "part-imag" && tag !== "part-real"
+    );
+
+    // Define brainlife dataset
+    let dataset = {
+        datatype: "neuro/anat/t2starw",
+        desc: fileinfo._fullname,
+        datatype_tags: datatype_tags,
+        tags: tags,
+        meta: Object.assign(sidecar, get_meta(fileinfo)),
+    };
+
+    // Assign files
+    let files = { 't2starw.nii': dir + "/" + fileinfo._fullname };
+    bids.datasets.push({ dataset, files });
+    cb();
+}
     
 }
